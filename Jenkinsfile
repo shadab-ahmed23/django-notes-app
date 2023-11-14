@@ -16,13 +16,21 @@ pipeline {
         stage("pushing image"){
             steps{
                 echo "push the image"
-                 withCredentials([usernamePassword(credentialsId:"DockerHub-ID",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
+                 withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")])
+                 {
                     sh "docker tag my-note-app shadabahmed23/my-note-app:latest"
                     sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
                      sh "docker push shadabahmed23/my-note-app:latest"
                 
             
             }
+            }
+        }
+        stage ("deploy to k8s"){
+            steps{
+                script{
+                    kubernetesDeploy (configs:'deployementservice.yaml', kubeconfigId: 'kubernetesid')
+                }
             }
         }
         stage("deploye image"){
